@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReelCheck - Fact Check Instagram Reels</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+        }
+        
+        /* Glassmorphism utility */
+        .glass {
+            background: rgba(30, 41, 59, 0.7); /* Slate 800 */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Custom Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Gradient Text */
+        .text-gradient {
+            background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Status Colors for Claims */
+        .status-true {
+            border-left: 4px solid #10b981; /* Emerald 500 */
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .badge-true { background-color: #10b981; color: white; }
+
+        .status-false {
+            border-left: 4px solid #ef4444; /* Red 500 */
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .badge-false { background-color: #ef4444; color: white; }
+
+        .status-misleading {
+            border-left: 4px solid #f59e0b; /* Amber 500 */
+            background: rgba(245, 158, 11, 0.05);
+        }
+        .badge-misleading { background-color: #f59e0b; color: white; }
+
+        .status-unverified {
+            border-left: 4px solid #64748b; /* Slate 500 */
+            background: rgba(100, 116, 139, 0.05);
+        }
+        .badge-unverified { background-color: #64748b; color: white; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 overflow-x-hidden relative">
+    
+    <!-- Background Accents -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 pointer-events-none"></div>
+
+    <main class="w-full max-w-2xl z-10 flex flex-col gap-8">
+        
+        <!-- Header -->
+        <header class="text-center space-y-3 mt-8">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight">
+                <span class="text-gradient">Reel</span>Check
+            </h1>
+            <p class="text-slate-400 text-lg md:text-xl font-light">
+                AI-powered fact checking for Instagram Reels.
+            </p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl transition-all duration-300">
+            
+            <form id="analyzeForm" class="space-y-5">
+                <div class="space-y-2">
+                    <label for="urlInput" class="block text-sm font-medium text-slate-300">Instagram Reel URL</label>
+                    <input 
+                        type="url" 
+                        id="urlInput" 
+                        required 
+                        placeholder="https://www.instagram.com/reel/..." 
+                        class="w-full px-5 py-4 bg-slate-800/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-slate-100 placeholder-slate-500 shadow-inner"
+                    >
+                </div>
+                
+                <button 
+                    type="submit" 
+                    id="submitBtn" 
+                    class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                >
+                    <span id="btnText">Analyze Reel</span>
+                    <div id="btnSpinner" class="spinner hidden"></div>
+                </button>
+            </form>
+
+            <!-- Error Banner -->
+            <div id="errorBanner" class="hidden mt-6 bg-red-900/40 border border-red-500/50 text-red-200 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-all duration-300">
+                <svg class="w-6 h-6 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <h4 class="font-semibold">Analysis Failed</h4>
+                    <p id="errorMessage" class="text-sm mt-1 text-red-300">Something went wrong. Please check the URL and try again.</p>
+                </div>
+            </div>
+
+            <!-- Loading Skeleton -->
+            <div id="loadingState" class="hidden mt-8 space-y-6">
+                <div class="flex flex-col items-center justify-center py-6 space-y-4">
+                    <div class="relative">
+                        <div class="w-16 h-16 border-4 border-slate-700 border-t-purple-500 rounded-full animate-spin"></div>
+                    </div>
+                    <div class="text-center space-y-2">
+                        <p class="text-lg font-medium text-slate-200 animate-pulse">Analyzing audio and checking facts...</p>
+                        <p class="text-sm text-slate-400">This usually takes about 10-15 seconds.</p>
+                    </div>
+                </div>
+                
+                <!-- Skeletons -->
+                <div class="space-y-3 animate-pulse">
+                    <div class="h-4 bg-slate-700/50 rounded w-1/4"></div>
+                    <div class="h-20 bg-slate-800/50 rounded-xl w-full"></div>
+                </div>
+                <div class="space-y-3 animate-pulse pt-4">
+                    <div class="h-4 bg-slate-700/50 rounded w-1/3"></div>
+                    <div class="h-32 bg-slate-800/50 rounded-xl w-full"></div>
+                    <div class="h-32 bg-slate-800/50 rounded-xl w-full"></div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsContainer" class="hidden mt-8 space-y-8 fade-in">
+                
+                <!-- Summary -->
+                <div class="space-y-3">
+                    <h3 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Summary Overview
+                    </h3>
+                    <div class="glass-card p-5 rounded-xl border border-slate-700 shadow-sm">
+                        <p id="summaryText" class="text-slate-300 leading-relaxed font-light text-lg"></p>
+                    </div>
+                </div>
+
+                <!-- Claims -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        Fact-Checked Claims
+                    </h3>
+                    <div id="claimsList" class="space-y-4">
+                        <!-- Claim cards injected via JS -->
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <footer class="text-center pb-8 opacity-60">
+            <p class="text-sm text-slate-400">Powered by FastAPI, Supadata & Google Gemini</p>
+        </footer>
+
+    </main>
+
+    <script>
+        document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const urlInput = document.getElementById('urlInput').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            
+            const errorBanner = document.getElementById('errorBanner');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            const loadingState = document.getElementById('loadingState');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const claimsList = document.getElementById('claimsList');
+            const summaryText = document.getElementById('summaryText');
+
+            // 1. Reset UI State
+            errorBanner.classList.add('hidden');
+            resultsContainer.classList.add('hidden');
+            claimsList.innerHTML = '';
+            summaryText.textContent = '';
+            
+            // 2. Set Loading State
+            submitBtn.disabled = true;
+            btnText.textContent = 'Processing...';
+            btnSpinner.classList.remove('hidden');
+            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            loadingState.classList.remove('hidden');
+
+            try {
+                // Adjust to relative path which matches FastAPI routing
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: urlInput })
+                });
+
+                if (!response.ok) {
+                    let errorDetail = `Server error: \${response.status}`;
+                    try {
+                        const errData = await response.json();
+                        if (errData.detail) errorDetail = errData.detail;
+                    } catch (e) {}
+                    throw new Error(errorDetail);
+                }
+
+                const data = await response.json();
+                
+                // 3. Render Results
+                renderResults(data);
+                
+                loadingState.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+                
+                // Scroll to results smoothly
+                setTimeout(() => {
+                    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+                
+            } catch (error) {
+                loadingState.classList.add('hidden');
+                errorMessage.textContent = error.message;
+                errorBanner.classList.remove('hidden');
+            } finally {
+                // 4. Reset Button State
+                submitBtn.disabled = false;
+                btnText.textContent = 'Analyze Reel';
+                btnSpinner.classList.add('hidden');
+                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+            }
+        });
+
+        function renderResults(data) {
+            const summaryText = document.getElementById('summaryText');
+            const claimsList = document.getElementById('claimsList');
+            
+            summaryText.textContent = data.summary || 'No summary available for this content.';
+            
+            if (!data.claims || data.claims.length === 0) {
+                claimsList.innerHTML = `
+                    <div class="glass-card p-5 rounded-xl border border-slate-700 text-center">
+                        <p class="text-slate-400 italic">No specific verifiable claims were identified in this video.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            data.claims.forEach(item => {
+                const verdictKey = (item.verdict || '').toLowerCase().replace(/[^a-z]/g, '');
+                
+                let statusClass = 'status-unverified';
+                let badgeClass = 'badge-unverified';
+                
+                if (verdictKey.includes('true')) {
+                    statusClass = 'status-true';
+                    badgeClass = 'badge-true';
+                } else if (verdictKey.includes('false')) {
+                    statusClass = 'status-false';
+                    badgeClass = 'badge-false';
+                } else if (verdictKey.includes('misleading')) {
+                    statusClass = 'status-misleading';
+                    badgeClass = 'badge-misleading';
+                }
+
+                const cardHTML = `
+                    <div class="glass-card rounded-xl p-5 md:p-6 transition-all hover:bg-slate-800/80 \${statusClass}">
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                            <h4 class="font-medium text-slate-100 text-lg leading-snug flex-grow">\${item.claim}</h4>
+                            <span class="px-3 py-1.5 text-xs font-bold rounded-md uppercase tracking-wider whitespace-nowrap self-start shrink-0 \${badgeClass} shadow-sm">
+                                \${item.verdict}
+                            </span>
+                        </div>
+                        <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                <span class="font-semibold text-slate-400 block mb-1 uppercase tracking-wider text-xs">Explanation</span> 
+                                \${item.explanation}
+                            </p>
+                        </div>
+                    </div>
+                `;
+                claimsList.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+    </script>
+</body>
+</html>
