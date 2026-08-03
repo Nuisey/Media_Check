@@ -91,11 +91,24 @@ async def analyze_video(request: AnalyzeRequest):
         
         platform = "YouTube video" if "youtube.com" in url or "youtu.be" in url else "Instagram Reel"
         
-        prompt = f"""
-        You are an expert fact-checker. Analyze the following transcript from a {platform}.
+        extract_prompt = f"""
+        You are an expert analyst. Read the entire transcript from a {platform} and extract EVERY single factual claim made. Do not stop early.
+        Transcript: {transcript_text}
         
-        Transcript:
-        {transcript_text}
+        Respond in ONLY valid JSON matching this schema:
+        {{ "extracted_claims": ["claim 1", "claim 2"] }}
+        """
+        extract_response = model.generate_content(extract_prompt)
+        try:
+            extracted_json = json.loads(extract_response.text)
+            claims_list = extracted_json.get("extracted_claims", [])
+        except json.JSONDecodeError:
+            claims_list = []
+            
+        prompt = f"""
+        You are an expert fact-checker. Fact-check the following claims made in a {platform}.
+        Claims to check: {json.dumps(claims_list)}
+        Original Transcript for context: {transcript_text}
         
         You must respond in ONLY valid JSON matching this exact schema:
         {{
