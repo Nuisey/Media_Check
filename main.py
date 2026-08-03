@@ -83,7 +83,7 @@ async def analyze_video(request: AnalyzeRequest):
     # 2. Analyze transcript using Gemini API
     try:
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-pro", # Using 1.5 Pro for best reasoning as requested by fact-checking context
+            model_name="gemini-3.6-flash", # Using gemini-3.6-flash as requested
             generation_config={
                 "response_mime_type": "application/json",
             }
