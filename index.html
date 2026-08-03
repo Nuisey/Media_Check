@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReelCheck - Fact Check Instagram Reels</title>
+    <title>VideoCheck - Fact Check Instagram & YouTube</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -91,10 +91,10 @@
         <!-- Header -->
         <header class="text-center space-y-3 mt-8">
             <h1 class="text-4xl md:text-5xl font-bold tracking-tight">
-                <span class="text-gradient">Reel</span>Check
+                <span class="text-gradient">Video</span>Check
             </h1>
             <p class="text-slate-400 text-lg md:text-xl font-light">
-                AI-powered fact checking for Instagram Reels.
+                AI-powered fact checking for Instagram Reels and YouTube Videos.
             </p>
         </header>
 
@@ -103,12 +103,12 @@
             
             <form id="analyzeForm" class="space-y-5">
                 <div class="space-y-2">
-                    <label for="urlInput" class="block text-sm font-medium text-slate-300">Instagram Reel URL</label>
+                    <label for="urlInput" class="block text-sm font-medium text-slate-300">Video URL (Instagram or YouTube)</label>
                     <input 
                         type="url" 
                         id="urlInput" 
                         required 
-                        placeholder="https://www.instagram.com/reel/..." 
+                        placeholder="https://www.instagram.com/reel/... or https://youtube.com/watch?..." 
                         class="w-full px-5 py-4 bg-slate-800/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-slate-100 placeholder-slate-500 shadow-inner"
                     >
                 </div>
@@ -118,7 +118,7 @@
                     id="submitBtn" 
                     class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center gap-3 transform active:scale-[0.98]"
                 >
-                    <span id="btnText">Analyze Reel</span>
+                    <span id="btnText">Analyze Video</span>
                     <div id="btnSpinner" class="spinner hidden"></div>
                 </button>
             </form>
@@ -263,7 +263,7 @@
             } finally {
                 // 4. Reset Button State
                 submitBtn.disabled = false;
-                btnText.textContent = 'Analyze Reel';
+                btnText.textContent = 'Analyze Video';
                 btnSpinner.classList.add('hidden');
                 submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
             }

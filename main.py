@@ -89,8 +89,10 @@ async def analyze_video(request: AnalyzeRequest):
             }
         )
         
+        platform = "YouTube video" if "youtube.com" in url or "youtu.be" in url else "Instagram Reel"
+        
         prompt = f"""
-        You are an expert fact-checker. Analyze the following transcript from an Instagram Reel.
+        You are an expert fact-checker. Analyze the following transcript from a {platform}.
         
         Transcript:
         {transcript_text}
