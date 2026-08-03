@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = FastAPI(title="Reel Fact Checker API")
+app = FastAPI(title="Media Fact Checker API")
 
 # Enable CORS (useful if frontend is hosted separately, though we serve it together)
 app.add_middleware(
