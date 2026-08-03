@@ -39,10 +39,12 @@ async def read_index():
 
 class AnalyzeRequest(BaseModel):
     url: str
+    mode: str = "single"
 
 @app.post("/api/analyze")
 async def analyze_video(request: AnalyzeRequest):
     url = request.url
+    mode = request.mode
     supadata_api_key = os.environ.get("SUPADATA_API_KEY")
     
     if not supadata_api_key:
@@ -91,24 +93,58 @@ async def analyze_video(request: AnalyzeRequest):
         
         platform = "YouTube video" if "youtube.com" in url or "youtu.be" in url else "Instagram Reel"
         
-        prompt = f"""
-        You are an expert fact-checker. Analyze the following transcript from a {platform}.
-        
-        Transcript:
-        {transcript_text}
-        
-        You must respond in ONLY valid JSON matching this exact schema:
-        {{
-          "summary": "A 2-sentence overview of the video's core message.",
-          "claims": [
+        if mode == "two-step":
+            extract_prompt = f"""
+            You are an expert analyst. Read the entire transcript from a {platform} and extract EVERY single factual claim made. Do not stop early.
+            Transcript: {transcript_text}
+            
+            Respond in ONLY valid JSON matching this schema:
+            {{ "extracted_claims": ["claim 1", "claim 2"] }}
+            """
+            extract_response = model.generate_content(extract_prompt)
+            try:
+                extracted_json = json.loads(extract_response.text)
+                claims_list = extracted_json.get("extracted_claims", [])
+            except json.JSONDecodeError:
+                claims_list = []
+                
+            prompt = f"""
+            You are an expert fact-checker. Fact-check the following claims made in a {platform}.
+            Claims to check: {json.dumps(claims_list)}
+            Original Transcript for context: {transcript_text}
+            
+            You must respond in ONLY valid JSON matching this exact schema:
             {{
-              "claim": "The specific claim made in the video",
-              "verdict": "True | False | Misleading | Unverified",
-              "explanation": "Brief explanation of why the verdict was given"
+              "summary": "A 2-sentence overview of the video's core message.",
+              "claims": [
+                {{
+                  "claim": "The specific claim made in the video",
+                  "verdict": "True | False | Misleading | Unverified",
+                  "explanation": "Brief explanation of why the verdict was given"
+                }}
+              ]
             }}
-          ]
-        }}
-        """
+            """
+        else:
+            prompt = f"""
+            You are an expert fact-checker. Analyze the following transcript from a {platform}. 
+            CRITICAL INSTRUCTION: You must read the ENTIRE transcript from start to finish. Extract and fact-check EVERY single verifiable claim made throughout the entire video. Do not stop early.
+            
+            Transcript:
+            {transcript_text}
+            
+            You must respond in ONLY valid JSON matching this exact schema:
+            {{
+              "summary": "A 2-sentence overview of the video's core message.",
+              "claims": [
+                {{
+                  "claim": "The specific claim made in the video",
+                  "verdict": "True | False | Misleading | Unverified",
+                  "explanation": "Brief explanation of why the verdict was given"
+                }}
+              ]
+            }}
+            """
         
         ai_response = model.generate_content(prompt)
         
