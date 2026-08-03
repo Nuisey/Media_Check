@@ -54,7 +54,7 @@ async def analyze_video(request: AnalyzeRequest):
     transcript_text = ""
     try:
         # Note: Adjust endpoint if Supadata updates its Instagram transcript API
-        supadata_url = "https://api.supadata.ai/v1/instagram/transcript"
+        supadata_url = "https://api.supadata.ai/v1/transcript"
         headers = {"x-api-key": supadata_api_key}
         params = {"url": url}
         
