@@ -140,6 +140,7 @@ async def analyze_video(request: AnalyzeRequest):
               "verdict": "True | False | Misleading | Unverified",
               "explanation": "Brief explanation of why the verdict was given",
               "evidence_strength": "Strong | Moderate | Weak | None",
+              "evidence_explanation": "Detailed explanation of why this evidence strength was chosen and what specific sources/evidence back it up",
               "sub_claims": [
                  // Same structure for any nested sub-claims
               ]
