@@ -82,13 +82,16 @@ async def analyze_video(request: AnalyzeRequest):
 
     # 2. Analyze transcript using Gemini API
     try:
-        model = genai.GenerativeModel(
-            model_name="gemini-3.6-flash", # Using gemini-3.6-flash as requested
-            generation_config={
-                "response_mime_type": "application/json",
-            }
-        )
-        
+        def generate_with_fallback(prompt_text):
+            config = {"response_mime_type": "application/json"}
+            try:
+                model = genai.GenerativeModel(model_name="gemini-3.6-flash", generation_config=config)
+                return model.generate_content(prompt_text)
+            except Exception as e:
+                print(f"Warning: gemini-3.6-flash failed ({e}). Falling back to gemini-3.5-flash.")
+                fallback_model = genai.GenerativeModel(model_name="gemini-3.5-flash", generation_config=config)
+                return fallback_model.generate_content(prompt_text)
+
         platform = "YouTube video" if "youtube.com" in url or "youtu.be" in url else "Instagram Reel"
         
         extract_prompt = f"""
@@ -114,7 +117,7 @@ async def analyze_video(request: AnalyzeRequest):
           ]
         }}
         """
-        extract_response = model.generate_content(extract_prompt)
+        extract_response = generate_with_fallback(extract_prompt)
         try:
             extracted_json = json.loads(extract_response.text)
             claims_list = extracted_json.get("extracted_claims", [])
@@ -144,7 +147,7 @@ async def analyze_video(request: AnalyzeRequest):
         }}
         """
         
-        ai_response = model.generate_content(prompt)
+        ai_response = generate_with_fallback(prompt)
         
         # Validate that we can parse the JSON before sending
         result_json = json.loads(ai_response.text)
