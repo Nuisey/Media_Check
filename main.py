@@ -92,11 +92,27 @@ async def analyze_video(request: AnalyzeRequest):
         platform = "YouTube video" if "youtube.com" in url or "youtu.be" in url else "Instagram Reel"
         
         extract_prompt = f"""
-        You are an expert analyst. Read the entire transcript from a {platform} and extract EVERY single factual claim made. Do not stop early.
+        You are an expert analyst. Read the entire transcript from a {platform} and extract EVERY single factual claim made. 
+        CRITICAL INSTRUCTIONS:
+        1. Maintain chronological order. The main claims should flow from the beginning to the end of the video.
+        2. Maintain a deep hierarchy. Identify the overarching main claims, and for each main claim, extract the nuanced sub-claims, sub-sub-claims, etc. made to support it.
+
         Transcript: {transcript_text}
         
         Respond in ONLY valid JSON matching this schema:
-        {{ "extracted_claims": ["claim 1", "claim 2"] }}
+        {{
+          "extracted_claims": [
+            {{
+              "claim": "Main claim text",
+              "sub_claims": [
+                {{
+                  "claim": "Sub claim text",
+                  "sub_claims": []
+                }}
+              ]
+            }}
+          ]
+        }}
         """
         extract_response = model.generate_content(extract_prompt)
         try:
@@ -106,18 +122,23 @@ async def analyze_video(request: AnalyzeRequest):
             claims_list = []
             
         prompt = f"""
-        You are an expert fact-checker. Fact-check the following claims made in a {platform}.
+        You are an expert fact-checker. Fact-check the following hierarchical chronological claims made in a {platform}.
         Claims to check: {json.dumps(claims_list)}
         Original Transcript for context: {transcript_text}
+        
+        CRITICAL INSTRUCTION: You MUST preserve the exact hierarchical structure (claims, sub-claims, sub-sub-claims, etc.) and chronological order provided.
         
         You must respond in ONLY valid JSON matching this exact schema:
         {{
           "summary": "A 2-sentence overview of the video's core message.",
           "claims": [
             {{
-              "claim": "The specific claim made in the video",
+              "claim": "The specific claim made",
               "verdict": "True | False | Misleading | Unverified",
-              "explanation": "Brief explanation of why the verdict was given"
+              "explanation": "Brief explanation of why the verdict was given",
+              "sub_claims": [
+                 // Same structure for any nested sub-claims
+              ]
             }}
           ]
         }}
