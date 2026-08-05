@@ -97,8 +97,8 @@ async def analyze_video(request: AnalyzeRequest):
         extract_prompt = f"""
         You are an expert analyst. Read the entire transcript from a {platform} and extract EVERY single factual claim made. 
         CRITICAL INSTRUCTIONS:
-        1. Maintain chronological order. The main claims should flow from the beginning to the end of the video.
-        2. Maintain a deep hierarchy. Identify the overarching main claims, and for each main claim, extract the nuanced sub-claims, sub-sub-claims, etc. made to support it.
+        1. Group the claims logically. Do NOT simply list them in chronological order. 
+        2. Maintain a deep hierarchy. Identify the overarching main claims, and for each main claim, extract the nuanced sub-claims, sub-sub-claims, etc. made to support it. Every supporting detail should be nested as a sub-claim under the broader point it supports.
 
         Transcript: {transcript_text}
         
@@ -125,11 +125,11 @@ async def analyze_video(request: AnalyzeRequest):
             claims_list = []
             
         prompt = f"""
-        You are an expert fact-checker. Fact-check the following hierarchical chronological claims made in a {platform}.
+        You are an expert fact-checker. Fact-check the following hierarchical claims made in a {platform}.
         Claims to check: {json.dumps(claims_list)}
         Original Transcript for context: {transcript_text}
         
-        CRITICAL INSTRUCTION: You MUST preserve the exact hierarchical structure (claims, sub-claims, sub-sub-claims, etc.) and chronological order provided.
+        CRITICAL INSTRUCTION: You MUST preserve the exact hierarchical structure (claims, sub-claims, sub-sub-claims, etc.) provided. Do not flatten the JSON.
         
         You must respond in ONLY valid JSON matching this exact schema:
         {{
