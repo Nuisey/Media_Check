@@ -1,6 +1,7 @@
 # MediaCheck - AI Media Fact Checker
 
 MediaCheck is an AI-powered fact-checking web application designed to analyze and verify claims made in social media videos (Instagram Reels and YouTube videos). It extracts transcripts, breaks them down into hierarchical claims, and uses Google's Gemini models to provide fact-checking verdicts and evidence.
+<img width="1367" height="473" alt="image" src="https://github.com/user-attachments/assets/699e5bd5-01a6-47cc-8b78-7fd214e8063c" />
 
 ## Features
 - **Video Transcript Extraction:** Uses the Supadata API to fetch transcripts from YouTube or Instagram URLs.
