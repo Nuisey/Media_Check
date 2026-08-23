@@ -7,7 +7,6 @@ MediaCheck is an AI-powered fact-checking web application designed to analyze an
 - **Video Transcript Extraction:** Uses the Supadata API to fetch transcripts from YouTube or Instagram URLs.
 - **Hierarchical Claim Extraction:** Utilizes Gemini AI to break down transcripts into deeply nested, logical claims and sub-claims rather than just chronological lists.
 - **AI Fact-Checking:** Fact-checks every claim and sub-claim, categorizing them as True, False, Misleading, or Unverified, along with explanations and evidence strength ratings.
-- **Modern UI:** A sleek, glassmorphic frontend built with Tailwind CSS, supporting deeply nested claims with expandable evidence sections.
 
 <img width="784" height="847" alt="image" src="https://github.com/user-attachments/assets/95ac605f-9f18-498c-956f-4abb7217be72" />
 
