@@ -9,6 +9,9 @@ MediaCheck is an AI-powered fact-checking web application designed to analyze an
 - **AI Fact-Checking:** Fact-checks every claim and sub-claim, categorizing them as True, False, Misleading, or Unverified, along with explanations and evidence strength ratings.
 - **Modern UI:** A sleek, glassmorphic frontend built with Tailwind CSS, supporting deeply nested claims with expandable evidence sections.
 
+<img width="784" height="847" alt="image" src="https://github.com/user-attachments/assets/95ac605f-9f18-498c-956f-4abb7217be72" />
+
+
 ## Tech Stack
 - **Backend:** Python, FastAPI, Uvicorn, HTTPX
 - **Frontend:** HTML, Tailwind CSS, Vanilla JavaScript
